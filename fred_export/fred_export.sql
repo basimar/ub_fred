@@ -1,0 +1,20 @@
+SET HEADING OFF;
+SET PAUSE OFF;
+SET NEWPAGE 0;
+SET SPACE 1;
+SET LINESIZE 5000;
+SET PAGESIZE 0;
+SET TRIMSPOOL ON;
+SET VERIFY OFF;
+SET TERMOUT OFF;
+SET FEEDBACK OFF;
+SET ECHO OFF;
+SPOOL fred_export;
+SELECT distinct Z00R_DOC_NUMBER||CHR(9)||&1 from Z00R a
+   where Z00R_DOC_NUMBER > '&2'
+   and exists (select Z00R_FIELD_CODE from Z00R b where Z00R_FIELD_CODE like 'FMT%' and Z00R_TEXT in ('BK','VM') and a.Z00R_DOC_NUMBER = b.Z00R_DOC_NUMBER)
+   and exists (select Z00R_FIELD_CODE from Z00R b where Z00R_FIELD_CODE like 'LDR%' and substr(Z00R_TEXT,8,1) = 'm' and a.Z00R_DOC_NUMBER = b.Z00R_DOC_NUMBER)
+   and not exists (select Z00R_FIELD_CODE from Z00R b where Z00R_FIELD_CODE like 'LDR%' and substr(Z00R_TEXT,20,1) = 'a' and a.Z00R_DOC_NUMBER = b.Z00R_DOC_NUMBER);
+SPOOL OFF;
+
+EXIT;
